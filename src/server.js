@@ -45,7 +45,7 @@ export function createServer(opts) {
     }
     throw err
   }
-  watchDirs = opts.watchDirs
+  watchDirs = opts.watchDirs || [pubdir]
   
   let handler = formHandlerChain([
     (opts.logRequests && !opts.quiet) && requestLogger(),
