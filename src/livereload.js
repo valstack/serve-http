@@ -153,11 +153,15 @@ export class Server extends EventEmitter {
     return dlog(this, "Socket closed.");
   }
 
-  watch(dir) {
-    dlog(this, "Watching " + dir + "...")
-    this.watcher = fs.watch(dir, { recursive: true }, (event, filename) => {
-      this.filterRefresh(filename)
+  watch(dirs) {
+    this.watcher = []
+    dirs.forEach((dir)=>{
+      dlog(this, "Watching " + dir + "...")
+      this.watcher.push(fs.watch(dir, { recursive: true }, (event, filename) => {
+        this.filterRefresh(filename)
+      }))
     })
+    
   }
 
   filterRefresh(filepath) {
@@ -219,7 +223,10 @@ export class Server extends EventEmitter {
 
   close() {
     if (this.watcher) {
-      this.watcher.close();
+      this.watcher.forEach((w)=>{
+        w.close();
+      })
+      
     }
     this.server._server.close();
     return this.server.close();

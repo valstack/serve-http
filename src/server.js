@@ -17,6 +17,7 @@ const readfile = promisify(fs.readFile)
 const writefile = promisify(fs.writeFile)
 
 let pubdir = ""  // absolute path
+let watchDirs = []
 let server = null
 let livereloadServer = null
 let log = ()=>{}
@@ -44,7 +45,8 @@ export function createServer(opts) {
     }
     throw err
   }
-
+  watchDirs = opts.watchDirs
+  
   let handler = formHandlerChain([
     (opts.logRequests && !opts.quiet) && requestLogger(),
     handleRequest,
@@ -136,7 +138,7 @@ function startLivereloadServer(port, bindHost) {
       port,
       bindHost,
     }, () => {
-      livereloadServer.watch(pubdir)
+      livereloadServer.watch(watchDirs)
     })
   }
 }
