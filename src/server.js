@@ -50,7 +50,7 @@ export function createServer(opts) {
     handleRequest,
   ])
 
-  let handler2 = (req, res) => handler(req, res).catch(err => {
+  let handler2 = (req, res) => handler(req, res,opts).catch(err => {
     console.error("Internal server error:", err.stack||String(err))
     return endResponse(res, 500, `Internal server error: ${err}`)
   })
@@ -217,9 +217,8 @@ function readStream(req) {
     })
   })
 }
+async function next(req, res){
 
-
-async function handleRequest(req, res) {
   req.pathname = decodeURIComponent(urlparse(req.url).pathname).replace(/^\.{2,}|\.{2,}$/g, "")
 
   // Only allow writing over files if the server can only accept local connections
@@ -235,6 +234,14 @@ async function handleRequest(req, res) {
   }
 
   endResponse(res, 500, `Unsupported method ${req.method}`)
+}
+
+async function handleRequest(req, res,opts) {
+ if(opts.requestHandler){
+  opts.requestHandler(req,res,next)
+ }else{
+   next(req,res)
+ }
 }
 
 
